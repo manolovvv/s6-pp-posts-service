@@ -41,7 +41,7 @@ jobs:
       - name: 'Use gcloud CLI'
         run: 'gcloud info'
         
-      - uses: 'GoogleCloudPlatform/github-actions/setup-gcloud@master'
+      - uses: 'GoogleCloudPlatform/github-actions/setup-gcloud'
         with:
           service_account_key: '${{ secrets.GCP_CREDENTIALS }}'
           project_id: '${{ secrets.PROJECT_ID }}'
