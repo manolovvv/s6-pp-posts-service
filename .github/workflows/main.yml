@@ -40,13 +40,19 @@ jobs:
         
       - name: 'Use gcloud CLI'
         run: 'gcloud info'
+        
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+          project_id: ${{ secrets.PROJECT_ID }}
+          export_default_credentials: true
 
           
-      - name: Pull docker mysql image
-        run: docker pull mysql
+#       - name: Pull docker mysql image
+#         run: docker pull mysql
         
-      - name: Start docker container
-        run: docker run --name posts -p 3306:3306 -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_DATABASE=posts -d mysql
+#       - name: Start docker container
+#         run: docker run --name posts -p 3306:3306 -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_DATABASE=posts -d mysql
       
       
       - name: Set up Java version
