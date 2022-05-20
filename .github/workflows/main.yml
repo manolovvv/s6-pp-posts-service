@@ -63,7 +63,6 @@ jobs:
       - name: Build java app
         run: ./mvnw clean package
 
-      - uses: 'google-github-actions/setup-gcloud@master'
       - uses: 'RafikFarhad/push-to-gcr-github-action@v4'
         with:
           gcloud_service_key: '${{ secrets.GCP_CREDENTIALS }}'
