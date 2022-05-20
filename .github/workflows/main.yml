@@ -64,9 +64,11 @@ jobs:
         run: ./mvnw clean package
 
       - name: Auth
+        id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+         create_credentials_file: true
          
 
       - name: 'Set up Cloud SDK'
@@ -75,12 +77,25 @@ jobs:
       - name: 'Use gcloud CLI'
         run: 'gcloud info'
         
+      - name: Build and push Docker
+        run: |
+          gcloud auth login --brief --cred-file="${{ steps.auth.outputs.credentials_file_path }}"
+          gcloud auth configure-docker europe-docker.pkg.dev
+          docker build -t europe-docker.pkg.dev/kalve-349610/kalve/post-service:latest .
+          docker image push europe-docker.pkg.dev/kalve-349610/kalve/post-service:latest
         
-      - name: Build docker image
-        run: docker build -t gcr.io/kalve-349610/post-service:latest .
         
-      - name: Push docker image
-        run: docker push gcr.io/kalve-349610/post-service:latest
+#        - uses: actions/checkout@v2
+#       - uses: 'google-github-actions/setup-gcloud@v0'
+#       - uses: 'RafikFarhad/push-to-gcr-github-action@v4'
+#         with:
+#           gcloud_service_key: '${{ secrets.GCP_CREDENTIALS }}'
+#           registry: gcr.io
+#           project_id: my-awesome-project
+#           image_name: server-end
+          
+#       - name: Create and push docker image
+
       
 #       - uses: 'RafikFarhad/push-to-gcr-github-action@v4'
 #         with:
