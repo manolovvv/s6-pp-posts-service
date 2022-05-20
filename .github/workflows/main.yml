@@ -53,16 +53,6 @@ jobs:
         
 #       - name: Start docker container
 #         run: docker run --name posts -p 3306:3306 -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_DATABASE=posts -d mysql
-      
-      
-      - name: Set up Java version
-        uses: actions/setup-java@v2
-        with:
-           distribution: 'temurin'
-           java-version: '8'
-      - name: Build java app
-        run: ./mvnw clean package
-
       - name: Auth
         id: 'auth'
         uses: 'google-github-actions/auth@v0'
@@ -76,6 +66,16 @@ jobs:
         
       - name: 'Use gcloud CLI'
         run: 'gcloud info'
+      
+      - name: Set up Java version
+        uses: actions/setup-java@v2
+        with:
+           distribution: 'temurin'
+           java-version: '8'
+      - name: Build java app
+        run: ./mvnw clean package
+
+
         
       - name: Build and push Docker
         run: |
