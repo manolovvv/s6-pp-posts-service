@@ -1,5 +1,6 @@
 package com.postsservice.Controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.*;
@@ -11,6 +12,8 @@ import com.postsservice.Service.PostServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.File;
@@ -36,13 +39,16 @@ public class PostController {
     public PostController() throws IOException {
     }
 
-    @GetMapping(value="/test")
-    public String test(){
+    @PostMapping(value="/test")
+    public String test( @RequestPart("image") MultipartFile image) throws IOException {
         String value = "ASDASD";
-        byte[] bytes = value.getBytes(UTF_8);
-        Blob blob = bucket.create("example",bytes);
+        System.out.println(image.getName());
+        System.out.println(image.getContentType());
+        byte[] bytes = image.getBytes();
 
-        return blob.getBlobId().toString();
+        Blob blob = bucket.create("1",bytes,image.getContentType());
+
+        return blob.getMediaLink();
     }
 
     @GetMapping(value="/testGet/{blobId}")
@@ -55,8 +61,11 @@ public class PostController {
 
 
     @PostMapping(value="/")
-    public Post createNewPost(@RequestBody Post post){
-        return postService.createNewPost(post);
+    public Post createNewPost(@RequestParam(value = "image", required = false) MultipartFile image,@RequestParam(value = "model",required = true) String model) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        Post post = mapper.readValue(model, Post.class);
+
+        return postService.createNewPost(post,image);
     }
 
     @GetMapping(value="/")
