@@ -63,12 +63,33 @@ jobs:
       - name: Build java app
         run: ./mvnw clean package
 
-      - uses: 'RafikFarhad/push-to-gcr-github-action@v4'
+      - name: Auth
+        uses: 'google-github-actions/auth@v0'
         with:
-          gcloud_service_key: '${{ secrets.GCP_CREDENTIALS }}'
-          registry: gcr.io
-          project_id: kalve-349610
-          image_name: post-service
+         credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+         
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+        
+      - name: 'Use gcloud CLI'
+        run: 'gcloud info'
+        
+        
+      - name: Build docker image
+        run: docker build -t gcr.io/kalve-349610/post-service:latest .
+        
+      - name: Push docker image
+        run: docker push gcr.io/kalve-349610/post-service:latest
+      
+#       - uses: 'RafikFarhad/push-to-gcr-github-action@v4'
+#         with:
+#           gcloud_service_key: '${{ secrets.GCP_CREDENTIALS }}'
+#           registry: gcr.io
+#           project_id: kalve-349610
+#           image_name: post-service
+
+     
 
 #       - name: Extract metadata (tags, labels) for Docker
 #         id: meta
