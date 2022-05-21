@@ -29,35 +29,35 @@ public class PostController {
     @Autowired
     PostServiceImpl postService;
 
-    File file = ResourceUtils.getFile("classpath:key.json");
-    InputStream in = new FileInputStream(file);
+//    File file = ResourceUtils.getFile("classpath:key.json");
+//    InputStream in = new FileInputStream(file);
+//
+//    Credentials credentials = GoogleCredentials.fromStream(in);
+//    Storage storage = StorageOptions.newBuilder().setCredentials(credentials).setProjectId("kalve-349610").build().getService();
+//    Bucket bucket = storage.get("kalve-post-bucket");
 
-    Credentials credentials = GoogleCredentials.fromStream(in);
-    Storage storage = StorageOptions.newBuilder().setCredentials(credentials).setProjectId("kalve-349610").build().getService();
-    Bucket bucket = storage.get("kalve-post-bucket");
+//    public PostController() throws IOException {
+//    }
 
-    public PostController() throws IOException {
-    }
+//    @PostMapping(value="/test")
+//    public String test( @RequestPart("image") MultipartFile image) throws IOException {
+//        String value = "ASDASD";
+//        System.out.println(image.getName());
+//        System.out.println(image.getContentType());
+//        byte[] bytes = image.getBytes();
+//
+//       // Blob blob = bucket.create("1",bytes,image.getContentType());
+//
+//        return blob.getMediaLink();
+//    }
 
-    @PostMapping(value="/test")
-    public String test( @RequestPart("image") MultipartFile image) throws IOException {
-        String value = "ASDASD";
-        System.out.println(image.getName());
-        System.out.println(image.getContentType());
-        byte[] bytes = image.getBytes();
-
-        Blob blob = bucket.create("1",bytes,image.getContentType());
-
-        return blob.getMediaLink();
-    }
-
-    @GetMapping(value="/testGet/{blobId}")
-    public byte[] testGet(@PathVariable String blobId){
-        Blob blob = bucket.get("Basic CI for building the app.png");
-        String value = new String(blob.getContent());
-
-        return blob.getContent();
-    }
+//    @GetMapping(value="/testGet/{blobId}")
+//    public byte[] testGet(@PathVariable String blobId){
+//        Blob blob = bucket.get("Basic CI for building the app.png");
+//        String value = new String(blob.getContent());
+//
+//        return blob.getContent();
+//    }
 
 
     @PostMapping(value="/")

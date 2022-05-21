@@ -30,12 +30,13 @@ public class PostServiceImpl implements PostService {
 
     @Autowired
     private final CommentRepository commentRepository;
+//
+//    File file = ResourceUtils.getFile("classpath:static/service-account/key.json");
+//    InputStream in = new FileInputStream(file);
 
-    File file = ResourceUtils.getFile("classpath:key.json");
-    InputStream in = new FileInputStream(file);
-
-    Credentials credentials = GoogleCredentials.fromStream(in);
-    Storage storage = StorageOptions.newBuilder().setCredentials(credentials).setProjectId("kalve-349610").build().getService();
+  //  Credentials credentials = GoogleCredentials.fromStream(in);
+//    Storage storage = StorageOptions.newBuilder().setProjectId("kalve-349610").build().getService();
+  Storage storage = StorageOptions.getDefaultInstance().getService();
     Bucket bucket = storage.get("kalve-post-bucket");
 
 
