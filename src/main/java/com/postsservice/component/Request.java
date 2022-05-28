@@ -17,7 +17,7 @@ public class Request {
     @Cacheable("userdetails")
     public UserDTO getUserDetailsById(Long id){
         if(id == null) return null;
-        String url = String.format("http://localhost:8083/%s", id.toString());
+        String url = String.format("http://34.141.137.161:8083/%s", id.toString());
         try {
             UserDTO user = webClientBuilder
                     .build()
