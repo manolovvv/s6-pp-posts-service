@@ -12,7 +12,7 @@ public class Comment {
     private Long id;
 
     private String text;
-    private Date created_on;
+    private Date createdOn;
     private Long userId;
 
     @ManyToOne
@@ -35,12 +35,12 @@ public class Comment {
         this.text = text;
     }
 
-    public Date getCreated_on() {
-        return created_on;
+    public Date getCreatedOn() {
+        return createdOn;
     }
 
-    public void setCreated_on(Date created_on) {
-        this.created_on = created_on;
+    public void setCreatedOn(Date createdOn) {
+        this.createdOn = createdOn;
     }
 
     public Long getUserId() {

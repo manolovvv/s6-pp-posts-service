@@ -1,6 +1,6 @@
-FROM openjdk:8-jdk-alpine
+FROM openjdk:11
 
-EXPOSE 8081
+EXPOSE 8082
 
 ADD target/posts-service-0.0.1-SNAPSHOT.jar posts-service-0.0.1-SNAPSHOT.jar
 

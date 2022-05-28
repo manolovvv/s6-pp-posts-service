@@ -1,7 +1,5 @@
 package com.postsservice.Service;
 
-import com.google.auth.Credentials;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
@@ -11,16 +9,19 @@ import com.postsservice.Model.Comment;
 import com.postsservice.Model.Post;
 import com.postsservice.Repository.CommentRepository;
 import com.postsservice.Repository.PostRepository;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
+import com.postsservice.component.Request;
+import com.postsservice.dto.CommentDTO;
+import com.postsservice.dto.PostDTO;
+import com.postsservice.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
+import java.util.Map;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -30,32 +31,27 @@ public class PostServiceImpl implements PostService {
 
     @Autowired
     private final CommentRepository commentRepository;
-//
-//    File file = ResourceUtils.getFile("classpath:static/service-account/key.json");
-//    InputStream in = new FileInputStream(file);
 
-  //  Credentials credentials = GoogleCredentials.fromStream(in);
-//    Storage storage = StorageOptions.newBuilder().setProjectId("kalve-349610").build().getService();
-  Storage storage = StorageOptions.getDefaultInstance().getService();
-    Bucket bucket = storage.get("kalve-post-bucket");
+    @Autowired
+    Request request;
 
 
-    public PostServiceImpl(PostRepository postRepository, CommentRepository commentRepository) throws IOException {
+    Storage storage = StorageOptions.getDefaultInstance().getService();
+    Bucket bucket = storage.get("kalve-posts-bucket");
+
+
+    public PostServiceImpl(PostRepository postRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
     }
 
-    @KafkaListener(topics= {"reporting"}, groupId="reporting")
-    public void consume(ConsumerRecord<String, String> record) {
-        System.out.println("received = " + record.value() + " with key " + record.key());
-    }
 
 
 
     @Override
     public Post createNewPost(Post post, MultipartFile image) throws IOException {
         Post createdPost = postRepository.save(post);
-        if(!image.isEmpty()){
+        if( image != null && !image.isEmpty() ){
 
         String authenticatedURLImage = uploadImage(image, post.getId());
         createdPost.setImage(authenticatedURLImage);
@@ -74,9 +70,28 @@ public class PostServiceImpl implements PostService {
 
     }
 
+
+
     @Override
-    public List<Post> getAllPost() {
-        return postRepository.findAll();
+    public List<PostDTO> getAllPost() {
+        List<Post> allPosts = postRepository.findAll();
+        List<PostDTO> posts = new ArrayList<>();
+        Map<Long, UserDTO> users = new HashMap<>();
+        allPosts.forEach(post -> {
+            PostDTO postDTO = new PostDTO();
+
+            UserDTO user = request.getUserDetailsById(post.getUserId());
+            postDTO.setUser(user);
+            postDTO.setCategory(post.getCategory());
+            postDTO.setComments(post.getComments());
+            postDTO.setCreatedOn(post.getCreatedOn());
+            postDTO.setImage(post.getImage());
+            postDTO.setText(post.getText());
+            postDTO.setId(post.getId());
+
+            posts.add(postDTO);
+        });
+        return posts;
     }
 
     @Override
@@ -95,12 +110,16 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public String addCommentToPost(Long id, Comment comment){
+    public String addCommentToPost(Long id, CommentDTO comment){
+        Comment entityComment = new Comment();
+        entityComment.setText(comment.getText());
+        entityComment.setUserId(comment.getUserId());
+        entityComment.setCreatedOn(comment.getCreatedOn());
         if(postRepository.existsById(id)){
             Post post = postRepository.findById(id).get();
-            comment.setPost(post);
+            entityComment.setPost(post);
             List<Comment> comments = post.getComments();
-            comments.add(comment);
+            comments.add(entityComment);
             post.setComments(comments);
             postRepository.save(post);
             return "comment added";
@@ -123,10 +142,8 @@ public class PostServiceImpl implements PostService {
     private String uploadImage(MultipartFile image, Long id) throws IOException {
         byte[] bytes = image.getBytes();
 
-        Blob blob = bucket.create(id.toString(),bytes,image.getContentType());
-        System.out.println(blob.getMediaLink());
-        System.out.println(blob.getSelfLink());
-        System.out.println(blob.getMetadata());
+       Blob blob = bucket.create(id.toString(),bytes,image.getContentType());
+
         return "https://storage.googleapis.com/kalve-post-bucket/"+id.toString();
     }
 }

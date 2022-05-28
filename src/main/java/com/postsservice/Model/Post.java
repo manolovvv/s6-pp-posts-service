@@ -1,13 +1,12 @@
 package com.postsservice.Model;
 
-import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 @Entity
+
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,12 +14,10 @@ public class Post {
 
     private String text;
     private String image;
-    private LocalDate created_on;
+    private LocalDate createdOn;
 
     private Long userId;
 
-    private String userEmail;
-    private String userImage;
 
     @Enumerated(EnumType.STRING)
     private Category category;
@@ -53,12 +50,12 @@ public class Post {
         this.image = image;
     }
 
-    public LocalDate getCreated_on() {
-        return created_on;
+    public LocalDate getCreatedOn() {
+        return createdOn;
     }
 
-    public void setCreated_on(LocalDate created_on) {
-        this.created_on = created_on;
+    public void setCreatedOn(LocalDate createdOn) {
+        this.createdOn = createdOn;
     }
 
     public Category getCategory() {
@@ -84,22 +81,6 @@ public class Post {
 
     public void setUserId(Long userId) {
         this.userId = userId;
-    }
-
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public void setUserEmail(String email) {
-        this.userEmail = userEmail;
-    }
-
-    public String getUserImage() {
-        return userImage;
-    }
-
-    public void setUserImage(String userImage) {
-        this.userImage = userImage;
     }
 
     public Post removeComment(Comment comment) {
