@@ -22,7 +22,8 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      
+ 
+      # Authentication to google cloud services
       - name: Auth
         id: 'auth'
         uses: 'google-github-actions/auth@v0'
@@ -30,13 +31,16 @@ jobs:
          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
          create_credentials_file: true
          
-
+         
+      # Setting up tools for iteracting with google cloud services
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v0'
         
+        #Chech google cloud connection
       - name: 'Use gcloud CLI'
         run: 'gcloud info'
       
+      # Setting up Java version
       - name: Set up Java version
         uses: actions/setup-java@v2
         with:
@@ -44,6 +48,7 @@ jobs:
            java-version: '11'
            
            
+       # Analyzing the application with sonar cloud
       - name: Cache SonarCloud packages
         uses: actions/cache@v1
         with:
@@ -62,10 +67,12 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=manolovvv_s6-pp-posts-service
           
+        #Building the application
       - name: Build java app
         run: ./mvnw clean package
 
         
+        # Creating docker image and pushing to the Google Artifact registry
       - name: Build and push Artifact registry
         run: |
           gcloud auth login --brief --cred-file="${{ steps.auth.outputs.credentials_file_path }}"
