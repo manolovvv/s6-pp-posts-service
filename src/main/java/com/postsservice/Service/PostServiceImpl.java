@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +65,8 @@ public class PostServiceImpl implements PostService {
 
         String authenticatedURLImage = uploadImage(image, post.getId());
         createdPost.setImage(authenticatedURLImage);
+        createdPost.setCreatedOn(LocalDate.now());
+        postRepository.save(createdPost);
         }
         return createdPost;
     }
@@ -161,6 +164,6 @@ public class PostServiceImpl implements PostService {
 
        Blob blob = bucket.create(id.toString(),bytes,image.getContentType());
 
-        return "https://storage.googleapis.com/kalve-post-bucket/"+id.toString();
+        return "https://storage.googleapis.com/kalve-posts-bucket/"+id.toString();
     }
 }
