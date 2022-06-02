@@ -7,6 +7,7 @@ import com.postsservice.Service.PostService;
 import com.postsservice.Service.PostServiceImpl;
 import com.postsservice.dto.CommentDTO;
 import com.postsservice.dto.PostDTO;
+import org.bouncycastle.cert.ocsp.Req;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,11 +26,12 @@ public class PostController {
 
 
     @PostMapping(value="/")
-    public Post createNewPost(@RequestParam(value = "image", required = false) MultipartFile image,@RequestParam(value = "model",required = true) String model) throws IOException {
+    public Post createNewPost(@RequestHeader(value="Authorization") String token,@RequestParam(value = "image", required = false) MultipartFile image,@RequestParam(value = "model",required = true) String model) throws IOException {
+
         ObjectMapper mapper = new ObjectMapper();
         Post post = mapper.readValue(model, Post.class);
 
-        return postService.createNewPost(post,image);
+        return postService.createNewPost(post,image, token);
     }
 
     @GetMapping(value="/")
@@ -43,8 +45,8 @@ public class PostController {
     }
 
     @DeleteMapping(value = "deletepost/{id}")
-    public String deletePost(@PathVariable Long id){
-        return postService.deletePost(id);
+    public String deletePost(@PathVariable Long id, @RequestHeader(value = "Authorization") String token){
+        return postService.deletePost(id, token);
     }
 
     @GetMapping(value = "getbycategory/{category}")
@@ -53,13 +55,14 @@ public class PostController {
     }
 
     @PostMapping(value = "addcomment/{id}")
-    public String addCommentToPost(@PathVariable String id, @RequestBody CommentDTO comment){
-        return postService.addCommentToPost(Long.parseLong(id), comment);
+    public String addCommentToPost(@PathVariable String id, @RequestBody CommentDTO comment, @RequestHeader(value = "Authorization") String token){
+
+        return postService.addCommentToPost(Long.parseLong(id), comment, token);
     }
 
     @DeleteMapping(value = "deletecomment/{id}")
-    public String deleteComment(@PathVariable String id){
-        return postService.deleteComment(Long.parseLong(id));
+    public String deleteComment(@PathVariable String id, @RequestHeader(value = "Authorization") String token){
+        return postService.deleteComment(Long.parseLong(id),token);
     }
 
 

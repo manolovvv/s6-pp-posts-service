@@ -11,13 +11,13 @@ import java.io.IOException;
 import java.util.List;
 
 public interface PostService {
-    Post createNewPost(Post post,MultipartFile file) throws IOException;
+    Post createNewPost(Post post,MultipartFile file,String token) throws IOException;
     Post getPostById(Long id);
     List<PostDTO> getAllPost();
     List<Post> getPostsByCategory(Category category);
-    String deletePost(Long id);
-    String addCommentToPost(Long id, CommentDTO comment);
-    String deleteComment(Long id);
+    String deletePost(Long id, String token);
+    String addCommentToPost(Long id, CommentDTO comment, String token);
+    String deleteComment(Long id, String token);
 
 
 }

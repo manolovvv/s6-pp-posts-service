@@ -13,6 +13,7 @@ import com.postsservice.component.Request;
 import com.postsservice.dto.CommentDTO;
 import com.postsservice.dto.PostDTO;
 import com.postsservice.dto.UserDTO;
+import io.jsonwebtoken.Jwt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +36,9 @@ public class PostServiceImpl implements PostService {
     @Autowired
     Request request;
 
+    @Autowired
+    JwtUtil jwtUtil;
+
 
     Storage storage = StorageOptions.getDefaultInstance().getService();
     Bucket bucket = storage.get("kalve-posts-bucket");
@@ -45,11 +49,16 @@ public class PostServiceImpl implements PostService {
         this.commentRepository = commentRepository;
     }
 
-
+    private Long getIdFromJwtToken(String token){
+        return jwtUtil.getIdFromToken(token);
+    }
 
 
     @Override
-    public Post createNewPost(Post post, MultipartFile image) throws IOException {
+    public Post createNewPost(Post post, MultipartFile image, String token) throws IOException {
+        String jwtToken = token.substring(7);
+        Long userId = getIdFromJwtToken(jwtToken);
+        post.setUserId(userId);
         Post createdPost = postRepository.save(post);
         if( image != null && !image.isEmpty() ){
 
@@ -76,7 +85,6 @@ public class PostServiceImpl implements PostService {
     public List<PostDTO> getAllPost() {
         List<Post> allPosts = postRepository.findAll();
         List<PostDTO> posts = new ArrayList<>();
-        Map<Long, UserDTO> users = new HashMap<>();
         allPosts.forEach(post -> {
             PostDTO postDTO = new PostDTO();
 
@@ -100,20 +108,27 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public String deletePost(Long id) {
+    public String deletePost(Long id, String token) {
+
         if(postRepository.existsById(id))
         {
             postRepository.deleteById(id);
+
             return "Successfully deleted";
+
         }
         return "No post find with that id";
     }
 
     @Override
-    public String addCommentToPost(Long id, CommentDTO comment){
+    public String addCommentToPost(Long id, CommentDTO comment, String token){
+        String jwtToken = token.substring(7);
+        Long userId = getIdFromJwtToken(jwtToken);
+
+
         Comment entityComment = new Comment();
         entityComment.setText(comment.getText());
-        entityComment.setUserId(comment.getUserId());
+        entityComment.setUserId(userId);
         entityComment.setCreatedOn(comment.getCreatedOn());
         if(postRepository.existsById(id)){
             Post post = postRepository.findById(id).get();
@@ -128,13 +143,15 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public String deleteComment(Long id) {
+    public String deleteComment(Long id, String token) {
+
         if(commentRepository.existsById(id)){
             Comment comment = commentRepository.findById(id).get();
             Post post = comment.getPost();
             post.removeComment(comment);
             postRepository.save(post);
             return "deleted";
+
         };
         return "no comment with this id found";
     }
